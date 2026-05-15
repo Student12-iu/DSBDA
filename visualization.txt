@@ -1,0 +1,90 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+data = pd.read_csv('cancer_data_set.csv')
+data
+data['diagnosis'] = data['diagnosis'].map({'M': 1, 'B': 0})
+data
+data.isnull().sum()
+num_cols=data.select_dtypes(include='number')
+means=num_cols.mean()
+data=data.fillna(means)
+data.isnull().sum()
+sns.heatmap(data.iloc[:, 1:11].corr(), annot=True)
+
+#From the below correlation matrix, we can observe correlated features.
+#radius_mean and area_mean are extreamly correlated(0.98) also radius_mean and perimeter_mean (1)
+# thus all these three features are extreamly correlated to each other
+#For dimentionality reduction, we can consider removing any two of these three features.
+#Similarly concavity_mean is highly correlated with concave points_mean (0.92)
+#concavity_mean is moderately correlated with compactness_mean (0.88).
+sns.pairplot(data.iloc[:, 1:11], hue='diagnosis')
+
+#Scatterplot helps to analyze how well the features separate the classes Benign and Malignant.
+#For example features like perimeter_mean, area_mean and radius_mean are very strong in separating out the two classes
+#Where as features like smoothness_mean and texture_mean are not that helpful.
+#Also the KDE plots helps us analyze the distibution and skewness of the features.
+#Features can then be transformed depending on the skewness type.
+sns.countplot(x=data['diagnosis'], hue=data['diagnosis'])
+plt.title('Diagnosis Distribution (Benign vs Malignant)')
+plt.xlabel('Diagnosis (0 = Benign, 1 = Malignant)')
+plt.ylabel('Count')
+plt.show()
+
+#From the graph, we observe that there are lot more cases of Benign than Malignant
+#Thus we conclude that the dataset is imbalanced.
+diagnosis_counts = data['diagnosis'].value_counts()
+
+plt.pie(diagnosis_counts, labels=['Benign','Malignant'], autopct='%1.1f%%', startangle=90)
+plt.title('Distribution of Diagnosis')
+plt.show()
+
+#To be exact, 62.7% cases are Benign cases and there are only 37.3% cases of Malignant in the dataset
+plt.figure(figsize=(6,5))
+sns.scatterplot(data=data, x='radius_mean', y='area_mean', hue='diagnosis')
+plt.title("Radius Mean vs Area Mean")
+plt.xlabel("Radius Mean")
+plt.ylabel("Area Mean")
+plt.show()
+
+#From the below scatterplot, we observe that Malignant tumours have larger area and radius than Benign tumours.
+#The scatterplot also indicates a very high correlation between the two features: area_mean and radius_mean.
+plt.figure(figsize=(6,5))
+sns.violinplot(data=data, x='diagnosis', y='concavity_mean', hue=data['diagnosis'])
+plt.title("Concavity Mean vs Diagnosis")
+plt.xlabel("Diagnosis (0 = Benign, 1 = Malignant)")
+plt.ylabel("Concavity Mean")
+plt.show()
+
+#From the below violin plot, we observe that majority of Malignant cases have higher concavity mean than Benigns.
+#Also, the the distribution for Benign is highly skewed where as Malignant is much more normally distributed.
+plt.figure(figsize=(6, 5))
+
+sns.kdeplot(data[data['diagnosis'] == 1]['area_mean'], label="Malignant", color='orange', fill=True)
+sns.kdeplot(data[data['diagnosis'] == 0]['area_mean'], label="Benign", color='green', fill=True)
+
+plt.title("Density Plot of Area Mean for Benign & Malignant Tumors")
+plt.xlabel("Area Mean")
+plt.ylabel("Density")
+plt.legend()
+plt.show()
+
+#From the below density plot, we observe that the Benign tumours have high density peak, indicating that there is very less variotion in Benign tumour areas.
+#Where as the low density peak of Malignant tumours indicate high variation in its tumour areas.
+plt.figure(figsize=(8,6))
+sns.swarmplot(data=data, x='diagnosis', y='radius_mean', hue=data['diagnosis'])
+plt.title("Radius Mean vs Diagnosis")
+plt.xlabel("Diagnosis (0 = Benign, 1 = Malignant)")
+plt.ylabel("Radius Mean")
+plt.show()
+
+#In the below swarmplot, the taller distribution of Malignants indicate more variation and larger size in its tumour radius.
+#The wider distribution of Benign indicates consentrated radius values, ie, less variation in the radius.
+plt.figure(figsize=(6, 5))
+sns.histplot(data['smoothness_mean'], bins=30, kde=True, color='black')
+plt.title("Distribution of Smoothness Mean")
+plt.xlabel("Smoothness Mean")
+plt.ylabel("Frequency")
+plt.show()
+
+#The below histogram indicates that the smoothness of most of the tumours lies in the range of 0.09 to 0.11

@@ -1,0 +1,72 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+data = pd.read_csv("./cancer_data_set.csv")
+data.head()
+data.shape
+data.dtypes
+data.info()
+data.isnull().sum()
+data[['area_mean', 'compactness_mean' , 'concavity_mean' , 'fractal_dimension_mean' , 'radius_se' , 'area_se' , 'concavity_se' , 'concave points_se' , 'compactness_worst' , 'symmetry_worst']] = data[['area_mean', 'compactness_mean' , 'concavity_mean' , 'fractal_dimension_mean' , 'radius_se' , 'area_se' , 'concavity_se' , 'concave points_se' , 'compactness_worst' , 'symmetry_worst']].fillna(data[['area_mean', 'compactness_mean' , 'concavity_mean' , 'fractal_dimension_mean' , 'radius_se' , 'area_se' , 'concavity_se' , 'concave points_se' , 'compactness_worst' , 'symmetry_worst']].mean())
+data.isnull().sum()
+plt.bar(data['diagnosis'] , data['compactness_worst'])
+plt.xlabel('diagnosis')
+plt.ylabel('compactness_worst')
+plt.barh(data['diagnosis'] , data['radius_mean'])
+plt.xlabel('radius_mean')
+plt.ylabel('diagnosis')
+counts = data['diagnosis'].value_counts()
+index = counts.index
+
+index
+plt.pie(counts , labels=index)
+plt.scatter(data['radius_mean'] , data['perimeter_mean'])
+plt.xlabel('radius_mean')
+plt.ylabel('perimeter_mean')
+data.head()
+sns.pairplot(data)
+from sklearn import preprocessing
+le = preprocessing.LabelEncoder()
+data['diagnosis'] = le.fit_transform(data['diagnosis'])
+data.head()
+from sklearn.model_selection import train_test_split 
+Features = data.drop('diagnosis' , axis = 1)
+Labels = data['diagnosis']
+Features.shape , Labels.shape
+x_train , x_test , y_train , y_test = train_test_split(Features , Labels , test_size = 0.2)
+x_train.shape , x_test.shape , y_train.shape , y_test.shape
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import confusion_matrix
+obj = RandomForestClassifier()
+obj.fit(x_train , y_train)
+preds = obj.predict(x_train)
+preds.shape
+train_acc = accuracy_score(y_train , preds)
+train_acc
+cm_train = confusion_matrix(y_train , preds)
+cm_train
+preds2 = obj.predict(x_test)
+preds2.shape
+test_acc = accuracy_score(y_test , preds2)
+test_acc
+cm_test = confusion_matrix(y_test , preds2)
+cm_test
+input_data = Features.iloc[0]
+a = input_data.values.reshape(1 , -1)
+a
+preds3 = obj.predict(a)
+preds3
+def predict(arr):
+    
+    if arr == 1:
+        return "Malignant"
+    else:
+        return "Benign"
+predict(preds3)
+input_data2 = Features.iloc[568]
+b = input_data2.values.reshape(1 , -1)
+b
+p = obj.predict(b)
+predict(p)

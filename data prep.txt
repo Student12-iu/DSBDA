@@ -1,0 +1,83 @@
+# Assignment 1B
+import pandas as pd
+df = pd.read_csv("dataset_Facebook.csv", delimiter = ",")
+df
+df.shape
+df.isnull().sum()
+data = df.dropna()
+data.isnull().sum() 
+data.shape  # 5 rows dropped
+### Create Subsets
+data['Page total likes'].mean()
+subset1 = data[data["Page total likes"]>123173]
+subset1.head()
+subset2 = data[["Type","like","share", "comment"]]
+subset2
+subset3 = data[["Type","Page total likes","Category"]]
+subset3
+subset4 = data[data["Type"]=="status"]
+subset4.head(10)
+subset5 = data[(data.like > 500) & (data.share > 30)]
+subset5.head()
+subset6 = data.loc[0:250]
+subset6
+subset7 = data.iloc[:,0:10]
+subset7
+subset8 = data.iloc[201:500]
+subset8
+### Merge  & Concat Cheat Sheet  
+
+#### 🔗 `pd.merge(df1, df2, on="key", how="...")`  
+- **inner** → Only matching rows (like SQL INNER JOIN)  
+- **outer** → All rows, fill missing with NaN (like FULL OUTER JOIN)  
+- **left** → All from left, matching from right (like LEFT JOIN)  
+- **right** → All from right, matching from left (like RIGHT JOIN)  
+
+#### 📌 `pd.concat([df1, df2], axis=...)`  
+- **axis=0** → Add rows (stack like appending data)  
+- **axis=1** → Add columns (side-by-side like features merging)  
+
+🚀 **Merge for relations, Concat for stacking!**
+
+
+
+
+merge_inner = pd.merge(subset6,subset8, left_index=True, right_index=True) #default how='inner' 
+merge_inner 
+# Merging the DataFrames on Common Columns
+
+merged_data = pd.merge(subset6,subset8,how='outer',suffixes=("_A", "_B"))
+merged_data
+merged_left = pd.merge(subset6,subset8,left_index=True,right_index=True ,how='right')
+merged_left
+concat_col = pd.concat([subset6,subset8], axis=1)
+concat_col
+# (Concatenating Rows) Merging by Stacking Rows 
+concat_row = pd.concat([subset6,subset8], axis=0)
+concat_row
+### Sort
+sort_column1 = data.sort_values(by = "like", ascending = False)
+sort_column1.head(5)
+sort_column2 = data.sort_values(by = "Type", ascending = True)
+sort_column2
+multi_column1 = data.sort_values(by=["Category","like","share","comment"], ascending = False)
+multi_column1.head(10)
+multi_column2 = data.sort_values(by=["Page total likes","Type"], ascending = True)
+multi_column2
+transposed_data = data.T
+transposed_data
+melted_data = data.melt(id_vars=['Type'], value_vars=['like', 'share', 'comment'])
+melted_data.head()
+pivoted_data = melted_data.pivot_table(index='Type', columns='variable', values='value', aggfunc='sum')
+pivoted_data.head()
+melted_data = melted_data.drop_duplicates(subset=['Type', 'variable'])
+melted_data
+pivoted_data = melted_data.pivot(index='Type', columns='variable', values='value')
+pivoted_data
+unique_counts_subset2 = subset2['Type'].nunique()
+unique_counts_subset2
+subset2 = subset2.drop_duplicates(subset=['Type'])
+subset3 = subset3.drop_duplicates(subset=['Type'])
+merged_df = pd.merge(subset2, subset3, on='Type', how='inner')
+merged_df
+merged_df.shape
