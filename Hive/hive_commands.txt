@@ -3,6 +3,7 @@ start-dfs.sh
 start-yarn.sh
 which hive
 cd/usr/local/hive/bin
+./hive
 
 create database airline_info;
 insert into airline_info values ('1','sahara airlines');
